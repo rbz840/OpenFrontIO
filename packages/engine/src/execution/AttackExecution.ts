@@ -365,6 +365,27 @@ export class AttackExecution implements Execution {
     borderSize: number,
   ): AttackLogicInput {
     const defender = this.target.isPlayer() ? this.target : null;
+    if (defender !== null) {
+      const nearbySupplyPosts = this.mg.nearbyUnits(
+        tile,
+        this.mg.config().supplyPostRange(),
+        UnitType.SupplyPost,
+        defender.id(),
+      );
+      for (const { unit: post } of nearbySupplyPosts) {
+        if (post.isUnderConstruction() || post.troops() <= 0) continue;
+        // Troops are tracked as a nation-wide pool in the current game model.
+        // Deploy this capped local reserve only when combat reaches its radius.
+        const available = Math.max(
+          0,
+          this.mg.config().maxTroops(defender) - defender.troops(),
+        );
+        const deployed = Math.min(post.troops(), available);
+        if (deployed <= 0) continue;
+        defender.addTroops(deployed);
+        post.setTroops(post.troops() - deployed);
+      }
+    }
     // Same test as scanning nearbyUnits() for a post owned by the defender
     // (active, not under construction, within range), without building a
     // result array per conquered tile — this runs for every tile of every
@@ -375,6 +396,14 @@ export class AttackExecution implements Execution {
         tile,
         this.mg.config().defensePostRange(),
         UnitType.DefensePost,
+        defender.id(),
+      );
+    const defenderHasBunker =
+      defender !== null &&
+      this.mg.hasUnitNearby(
+        tile,
+        this.mg.config().bunkerRange(),
+        UnitType.Bunker,
         defender.id(),
       );
     return {
@@ -396,6 +425,7 @@ export class AttackExecution implements Execution {
                 defender.isDisconnected() && this._owner.isOnSameTeam(defender),
             },
       defenderHasDefensePost,
+      defenderHasBunker,
       falloutRatio: this.mg.hasFallout(tile)
         ? this.mg.numTilesWithFallout() / this.mg.numLandTiles()
         : null,

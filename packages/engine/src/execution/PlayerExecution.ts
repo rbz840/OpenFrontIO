@@ -6,7 +6,7 @@ import {
   UnitType,
 } from "@openfront/engine-api/game/GameTypes";
 import { zInt, zPlayerRef } from "@openfront/engine-lib/snapshot/SnapshotType";
-import { getMode, simpleHash } from "@openfront/engine-lib/Util";
+import { getMode, simpleHash, toInt } from "@openfront/engine-lib/Util";
 import { z } from "zod";
 import { EngineConfig } from "../configuration/EngineConfig";
 import { Execution, Game, Player } from "../game/Game";
@@ -126,6 +126,19 @@ export class PlayerExecution implements Execution {
 
     const troopInc = this.config.troopIncreaseRate(this.player);
     this.player.addTroops(troopInc);
+    for (const post of this.player.units(UnitType.SupplyPost)) {
+      if (!post.isActive() || post.isUnderConstruction()) continue;
+      const reserveGain = Math.max(
+        1,
+        toInt(troopInc * this.config.supplyPostTroopRegenBonus()),
+      );
+      post.setTroops(
+        Math.min(
+          this.config.supplyPostReserveLimit(),
+          post.troops() + reserveGain,
+        ),
+      );
+    }
     const goldFromWorkers = this.config.goldAdditionRate(this.player);
     this.player.addGold(goldFromWorkers);
 

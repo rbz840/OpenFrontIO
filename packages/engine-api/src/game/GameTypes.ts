@@ -170,9 +170,10 @@ export interface PublicGameModifiers {
   isDoomsdayClock?: boolean;
 }
 
-// Largest bulk-purchase amount an intent may carry (mirrored by the intent
-// schemas' max). Also the length of BuildableUnit.upgradeCosts.
+// Structure upgrade batch limit, also the length of BuildableUnit.upgradeCosts.
 export const MAX_UPGRADE_AMOUNT = 50;
+// Nuclear launch batches are capped separately and still bounded by ready silo tubes.
+export const MAX_NUKE_BULK_AMOUNT = 100;
 
 export interface UnitInfo {
   maxHealth?: number;
@@ -207,6 +208,8 @@ export enum UnitType {
   MIRVWarhead = "MIRV Warhead",
   Train = "Train",
   Factory = "Factory",
+  Bunker = "Bunker",
+  SupplyPost = "Supply Post",
 }
 
 export enum TrainType {
@@ -236,6 +239,8 @@ export const Structures = unitTypeGroup([
   UnitType.MissileSilo,
   UnitType.Port,
   UnitType.Factory,
+  UnitType.Bunker,
+  UnitType.SupplyPost,
 ] as const);
 
 export const BuildMenus = unitTypeGroup([
@@ -368,11 +373,15 @@ export function bulkCost(bu: BuildableUnit, amount: number): Gold {
   return bu.upgradeCosts?.[amount - 1] ?? bu.cost * BigInt(amount);
 }
 
-// Largest amount (up to MAX_UPGRADE_AMOUNT) whose bulk total fits in `gold`.
+// Largest amount (up to `maxAmount`) whose bulk total fits in `gold`.
 // 0 when not even a single purchase is affordable.
-export function maxBulkAmount(bu: BuildableUnit, gold: Gold): number {
+export function maxBulkAmount(
+  bu: BuildableUnit,
+  gold: Gold,
+  maxAmount: number = MAX_UPGRADE_AMOUNT,
+): number {
   let max = 0;
-  for (let n = 1; n <= MAX_UPGRADE_AMOUNT; n++) {
+  for (let n = 1; n <= maxAmount; n++) {
     // Never price upgrades past the shipped totals — beyond the array,
     // bulkCost would silently fall back to linear pricing.
     if (bu.upgradeCosts !== undefined && n > bu.upgradeCosts.length) {

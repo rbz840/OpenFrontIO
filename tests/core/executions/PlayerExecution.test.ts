@@ -81,4 +81,45 @@ describe("PlayerExecution", () => {
     expect(city.owner()).toBe(otherPlayer);
     expect(city.isActive()).toBe(true);
   });
+
+  test("Supply Post slowly accumulates a capped local troop reserve", () => {
+    const tile = game.ref(50, 50);
+    player.conquer(tile);
+    const supplyPost = player.buildUnit(UnitType.SupplyPost, tile, {});
+
+    executeTicks(game, 2);
+
+    expect(supplyPost.troops()).toBeGreaterThan(0);
+    expect(supplyPost.troops()).toBeLessThanOrEqual(
+      game.config().supplyPostReserveLimit(),
+    );
+  });
+
+  test("Supply Post reserve stops at its configured cap", () => {
+    const tile = game.ref(50, 50);
+    player.conquer(tile);
+    const supplyPost = player.buildUnit(UnitType.SupplyPost, tile, {});
+    const cap = game.config().supplyPostReserveLimit();
+    supplyPost.setTroops(cap - 1);
+
+    game.executeNextTick();
+
+    expect(supplyPost.troops()).toBe(cap);
+  });
+
+  test("Bunker construction has no per-player count cap", () => {
+    const bunkerTiles = [
+      game.ref(50, 50),
+      game.ref(70, 70),
+      game.ref(90, 90),
+      game.ref(110, 110),
+      game.ref(130, 130),
+    ];
+    for (const tile of bunkerTiles) player.conquer(tile);
+    for (const tile of bunkerTiles.slice(0, 4)) {
+      player.buildUnit(UnitType.Bunker, tile, {});
+    }
+
+    expect(player.canBuild(UnitType.Bunker, bunkerTiles[4])).not.toBe(false);
+  });
 });

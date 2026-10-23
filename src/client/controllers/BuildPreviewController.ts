@@ -473,6 +473,12 @@ export class BuildPreviewController implements Controller {
       case UnitType.DefensePost:
         rangeRadius = this.game.config().defensePostRange();
         break;
+      case UnitType.Bunker:
+        rangeRadius = this.game.config().bunkerRange();
+        break;
+      case UnitType.SupplyPost:
+        rangeRadius = this.game.config().supplyPostRange();
+        break;
     }
     let radiusTileX = this.game.x(placementTile);
     let radiusTileY = this.game.y(placementTile);
@@ -485,7 +491,8 @@ export class BuildPreviewController implements Controller {
       radiusTileY = this.game.y(upgradeTargetTile);
     }
 
-    const isNuke = u.type === UnitType.AtomBomb;
+    const isNuke =
+      u.type === UnitType.AtomBomb || u.type === UnitType.HydrogenBomb;
     const multiplier =
       u.canUpgrade !== false || isNuke
         ? (this.uiState.upgradeMultiplier ?? 1)

@@ -111,6 +111,27 @@ describe("Attack", () => {
     expect(attacker.outgoingAttacks()[0].troops()).toBeLessThan(90);
   });
 
+  test("nearby Supply Post reserve deploys only when combat reaches it", () => {
+    const post = defender.buildUnit(UnitType.SupplyPost, defenderSpawn, {});
+    post.setTroops(1_000);
+    defender.setTroops(Math.max(0, defender.troops() - 10_000));
+    const troopsBefore = defender.troops();
+    const execution = new AttackExecution(100, attacker, defender.id());
+    execution.init(game, game.ticks());
+    const input = (
+      execution as unknown as {
+        attackLogicInput: (
+          troops: number,
+          tile: TileRef,
+          borderSize: number,
+        ) => { defender: { troops: number } | null };
+      }
+    ).attackLogicInput(100, defenderSpawn, 1);
+
+    expect(input.defender?.troops).toBe(troopsBefore + 1_000);
+    expect(post.troops()).toBe(0);
+  });
+
   test("Nuke reduce attacking boat troop count", async () => {
     constructionExecution(game, defender, 1, 1, UnitType.MissileSilo);
     expect(defender.units(UnitType.MissileSilo)).toHaveLength(1);

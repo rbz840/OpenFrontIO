@@ -10,6 +10,7 @@ import {
   GameMode,
   GameType,
   HumansVsNations,
+  MAX_NUKE_BULK_AMOUNT,
   MAX_UPGRADE_AMOUNT,
   Quads,
   RankedType,
@@ -484,13 +485,28 @@ export const DonateTroopIntentSchema = z.object({
   troops: zb.float({ min: 0 }).nullable(),
 });
 
-export const BuildUnitIntentSchema = z.object({
-  type: z.literal("build_unit"),
-  unit: z.enum(UnitType),
-  tile: zb.uint(),
-  rocketDirectionUp: z.boolean().optional(),
-  amount: zb.uint({ min: 1, max: MAX_UPGRADE_AMOUNT }).optional(),
-});
+export const BuildUnitIntentSchema = z
+  .object({
+    type: z.literal("build_unit"),
+    unit: z.enum(UnitType),
+    tile: zb.uint(),
+    rocketDirectionUp: z.boolean().optional(),
+    amount: zb.uint({ min: 1, max: MAX_NUKE_BULK_AMOUNT }).optional(),
+  })
+  .superRefine((intent, ctx) => {
+    if (
+      intent.amount !== undefined &&
+      intent.unit !== UnitType.AtomBomb &&
+      intent.unit !== UnitType.HydrogenBomb &&
+      intent.amount > MAX_UPGRADE_AMOUNT
+    ) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["amount"],
+        message: `amount must not exceed ${MAX_UPGRADE_AMOUNT} for non-nuclear builds`,
+      });
+    }
+  });
 
 export const UpgradeStructureIntentSchema = z.object({
   type: z.literal("upgrade_structure"),

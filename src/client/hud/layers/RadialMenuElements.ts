@@ -3,6 +3,7 @@ import {
   AllPlayers,
   BuildableAttacks,
   bulkCost,
+  MAX_NUKE_BULK_AMOUNT,
   maxBulkAmount,
   NUKE_BULK_STEPS,
   PlayerActions,
@@ -469,7 +470,8 @@ function createMenuElements(
             return [];
           }
           const isStackableNuke =
-            item.unitType === UnitType.AtomBomb &&
+            (item.unitType === UnitType.AtomBomb ||
+              item.unitType === UnitType.HydrogenBomb) &&
             buildableUnit.canBuild !== false;
           if (
             (buildableUnit.canUpgrade === false && !isStackableNuke) ||
@@ -486,7 +488,11 @@ function createMenuElements(
           // return no submenu so the click falls through to an immediate x1
           // (see action below).
           const myPlayer = params.game.myPlayer();
-          let maxAmount = maxBulkAmount(buildableUnit, myPlayer?.gold() ?? 0n);
+          let maxAmount = maxBulkAmount(
+            buildableUnit,
+            myPlayer?.gold() ?? 0n,
+            isStackableNuke ? MAX_NUKE_BULK_AMOUNT : undefined,
+          );
           if (isStackableNuke) {
             maxAmount = Math.min(maxAmount, myPlayer?.readyMissileCount() ?? 0);
           }

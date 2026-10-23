@@ -198,6 +198,8 @@
       "mirv": "Huge explosion, only targets selected player",
       "missile_silo": "Used to launch nukes",
       "port": "Sends trade ships to generate gold",
+      "bunker": "Build on your land; no troop cost. For 8 tiles, doubles attackers' losses and conquest time. Fixed, costly, stays until destroyed or captured; limit 3.",
+      "supply_post": "Build on your land; no troop cost. Slowly stores up to 10,000 reserve troops; battles within 20 tiles draw from it. Stays until destroyed or captured; limit 4.",
       "sam_launcher": "Defends against incoming nukes",
       "warship": "Captures trade ships, destroys ships and boats"
     },
@@ -2565,6 +2567,7 @@
   "unit_type": {
     "atom_bomb": "Atom Bomb",
     "boat": "Boat",
+    "bunker": "Bunker",
     "city": "City",
     "defense_post": "Defense Post",
     "factory": "Factory",
@@ -2573,7 +2576,8 @@
     "missile_silo": "Missile Silo",
     "port": "Port",
     "sam_launcher": "SAM Launcher",
-    "warship": "Warship"
+    "warship": "Warship",
+    "supply_post": "Supply Post"
   },
   "update_available": {
     "desktop": "A new version of OpenFront is available. It will download in the background; reload from the update bar once it is ready.",

@@ -118,6 +118,20 @@ export const buildTable: BuildItemDisplay[][] = [
       key: "unit_type.factory",
       countable: true,
     },
+    {
+      unitType: UnitType.Bunker,
+      icon: shieldIcon,
+      description: "build_menu.desc.bunker",
+      key: "unit_type.bunker",
+      countable: true,
+    },
+    {
+      unitType: UnitType.SupplyPost,
+      icon: shieldIcon,
+      description: "build_menu.desc.supply_post",
+      key: "unit_type.supply_post",
+      countable: true,
+    },
   ],
 ];
 

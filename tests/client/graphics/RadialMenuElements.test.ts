@@ -674,6 +674,22 @@ describe("RadialMenuElements", () => {
       expect(mockParams.eventBus.emit).toHaveBeenLastCalledWith(
         expect.objectContaining({ amount: 12 }),
       );
+
+      const hydrogenBombElement = subMenu.find(
+        (item) => item.id === "attack_Hydrogen Bomb",
+      );
+      (mockGame as any).myPlayer = vi.fn(() => ({
+        gold: () => 20_000n,
+        readyMissileCount: () => 150,
+      }));
+      options = hydrogenBombElement!.subMenu!(mockParams);
+      expect(options.at(-1)?.id).toBe(
+        `upgrade_${UnitType.HydrogenBomb}_max`,
+      );
+      options[3].action!(mockParams);
+      expect(mockParams.eventBus.emit).toHaveBeenLastCalledWith(
+        expect.objectContaining({ amount: 100 }),
+      );
     });
   });
 

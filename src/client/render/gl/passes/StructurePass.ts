@@ -17,10 +17,12 @@
 import type { GhostPreviewData, RendererConfig, UnitState } from "../../types";
 import {
   UT_CITY,
+  UT_BUNKER,
   UT_DEFENSE_POST,
   UT_FACTORY,
   UT_MISSILE_SILO,
   UT_PORT,
+  UT_SUPPLY_POST,
   UT_SAM_LAUNCHER,
 } from "../../types";
 import { DynamicInstanceBuffer } from "../DynamicBuffer";
@@ -147,6 +149,15 @@ export class StructurePass {
       );
       if (col >= 0) {
         this.typeToAtlasCol.set(header.unitTypes[i], col);
+      } else if (
+        header.unitTypes[i] === UT_BUNKER ||
+        header.unitTypes[i] === UT_SUPPLY_POST
+      ) {
+        // Reuse the shield glyph until dedicated atlas art is added.
+        this.typeToAtlasCol.set(
+          header.unitTypes[i],
+          STRUCTURE_ORDER.indexOf(UT_DEFENSE_POST),
+        );
       }
     }
 

@@ -1582,11 +1582,27 @@ export class PlayerImpl implements Player {
     targetTile: TileRef,
     validTiles: TileRef[] | null = null,
   ): TileRef | false {
+    const advancedStructureLimit = this.advancedStructureLimit(unitType);
+    if (
+      advancedStructureLimit !== null &&
+      this.units(unitType).length >= advancedStructureLimit
+    ) {
+      return false;
+    }
     if (!this.canBuildUnitType(unitType)) {
       return false;
     }
 
     return this.canSpawnUnitType(unitType, targetTile, validTiles);
+  }
+
+  private advancedStructureLimit(type: UnitType): number | null {
+    switch (type) {
+      case UnitType.SupplyPost:
+        return 4;
+      default:
+        return null;
+    }
   }
 
   private canSpawnUnitType(
@@ -1623,6 +1639,8 @@ export class PlayerImpl implements Player {
       case UnitType.SAMLauncher:
       case UnitType.City:
       case UnitType.Factory:
+      case UnitType.Bunker:
+      case UnitType.SupplyPost:
         return this.landBasedStructureSpawn(targetTile, validTiles);
       default:
         assertNever(unitType);

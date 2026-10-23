@@ -42,6 +42,7 @@ function run(o: Partial<AttackLogicInput> & { attackTroops: number }) {
     attacker: { type: PlayerType.Human, numTiles: 20_000 },
     defender: null,
     defenderHasDefensePost: false,
+    defenderHasBunker: false,
     falloutRatio: null,
     borderSize: 100,
     ...o,
@@ -135,6 +136,17 @@ describe("attackLogic golden values", () => {
       });
     }
     expect(table).toMatchSnapshot();
+  });
+
+  test("bunker increases attacker losses and slows conquest in its radius", () => {
+    const input = {
+      attackTroops: 100_000,
+      defender: defender({ numTiles: 20_000, troops: 100_000 }),
+    };
+    const exposed = run(input);
+    const protectedTile = run({ ...input, defenderHasBunker: true });
+    expect(protectedTile.attackerLoss).toBeGreaterThan(exposed.attackerLoss);
+    expect(protectedTile.tickFraction).toBeGreaterThan(exposed.tickFraction);
   });
 
   test("player vs player: large attacker overwhelming-push speed floor", () => {

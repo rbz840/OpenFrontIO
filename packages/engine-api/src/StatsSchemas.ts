@@ -36,6 +36,8 @@ export const otherUnits = [
   "silo",
   "saml",
   "fact",
+  "bunk",
+  "supp",
 ] as const;
 export const OtherUnitSchema = z.enum(otherUnits);
 export type OtherUnit = z.infer<typeof OtherUnitSchema>;
@@ -46,7 +48,9 @@ export type OtherUnitType =
   | UnitType.Port
   | UnitType.SAMLauncher
   | UnitType.Warship
-  | UnitType.Factory;
+  | UnitType.Factory
+  | UnitType.Bunker
+  | UnitType.SupplyPost;
 
 export const unitTypeToOtherUnit = {
   [UnitType.City]: "city",
@@ -56,6 +60,8 @@ export const unitTypeToOtherUnit = {
   [UnitType.SAMLauncher]: "saml",
   [UnitType.Warship]: "wshp",
   [UnitType.Factory]: "fact",
+  [UnitType.Bunker]: "bunk",
+  [UnitType.SupplyPost]: "supp",
 } as const satisfies Record<OtherUnitType, OtherUnit>;
 
 // Attacks

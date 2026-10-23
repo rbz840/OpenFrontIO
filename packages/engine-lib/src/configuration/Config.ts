@@ -176,6 +176,22 @@ export class Config {
     return 30;
   }
 
+  bunkerRange(): number {
+    return 8;
+  }
+
+  supplyPostRange(): number {
+    return 20;
+  }
+
+  supplyPostTroopRegenBonus(): number {
+    return 0.05;
+  }
+
+  supplyPostReserveLimit(): number {
+    return 10_000;
+  }
+
   isUnitDisabled(unitType: UnitType): boolean {
     return this._gameConfig.disabledUnits?.includes(unitType) ?? false;
   }
@@ -245,6 +261,18 @@ export class Config {
         info = {
           constructionDuration: this.instantBuild() ? 0 : 2 * 10,
           upgradable: true,
+        };
+        break;
+      case UnitType.SupplyPost:
+        info = {
+          maxHealth: 500,
+          constructionDuration: this.instantBuild() ? 0 : 8 * 10,
+        };
+        break;
+      case UnitType.Bunker:
+        info = {
+          maxHealth: 2500,
+          constructionDuration: this.instantBuild() ? 0 : 20 * 10,
         };
         break;
       case UnitType.TransportShip:

@@ -36,6 +36,7 @@ export interface AttackLogicInput {
   } | null;
   /** A defense post owned by the defender is in range of the tile. */
   defenderHasDefensePost: boolean;
+  defenderHasBunker?: boolean;
   /** Fraction of land tiles with fallout, or null if the tile has no fallout. */
   falloutRatio: number | null;
   /** Tiles on the attack front this tick (plus jitter); fixed for the tick. */
@@ -144,6 +145,10 @@ export class EngineConfig extends Config {
 
   defensePostSpeedBonus(): number {
     return 3;
+  }
+
+  bunkerDefenseBonus(): number {
+    return 2;
   }
 
   playerTeams(): TeamCountConfig {
@@ -350,9 +355,9 @@ export class EngineConfig extends Config {
           UnitType.Factory,
         );
       case UnitType.AtomBomb:
-        return this.costWrapper(() => 750_000, UnitType.AtomBomb);
+        return this.costWrapper(() => 5_000_000, UnitType.AtomBomb);
       case UnitType.HydrogenBomb:
-        return this.costWrapper(() => 5_000_000, UnitType.HydrogenBomb);
+        return this.costWrapper(() => 30_000_000, UnitType.HydrogenBomb);
       case UnitType.MIRV:
         return (game: Game, player: Player) => {
           if (
@@ -385,6 +390,16 @@ export class EngineConfig extends Config {
           (numUnits: number) => Math.min(1_000_000, pow2(numUnits) * 125_000),
           UnitType.Factory,
           UnitType.Port,
+        );
+      case UnitType.Bunker:
+        return this.costWrapper(
+          (n: number) => Math.min(2_000_000, 1_000_000 * (n + 1)),
+          UnitType.Bunker,
+        );
+      case UnitType.SupplyPost:
+        return this.costWrapper(
+          (n: number) => Math.min(1_000_000, 250_000 * (n + 1)),
+          UnitType.SupplyPost,
         );
       case UnitType.TransportShip:
       case UnitType.Shell:
@@ -527,6 +542,10 @@ export class EngineConfig extends Config {
     if (defender !== null && input.defenderHasDefensePost) {
       mag *= this.defensePostDefenseBonus();
       tileCost *= this.defensePostSpeedBonus();
+    }
+    if (defender !== null && input.defenderHasBunker === true) {
+      mag *= this.bunkerDefenseBonus();
+      tileCost *= this.bunkerDefenseBonus();
     }
     if (input.falloutRatio !== null) {
       const fallout = this.falloutDefenseModifier(input.falloutRatio);

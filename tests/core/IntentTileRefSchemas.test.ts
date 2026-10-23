@@ -84,6 +84,44 @@ describe("intent schemas: unit ids are non-negative integers", () => {
   });
 });
 
+describe("advanced structure build intents", () => {
+  it("accepts bunker and supply post through the existing build contract", () => {
+    for (const unit of ["Bunker", "Supply Post"]) {
+      expect(
+        BuildUnitIntentSchema.safeParse({ type: "build_unit", unit, tile: 12 })
+          .success,
+      ).toBe(true);
+    }
+  });
+
+  it("doubles the nuke batch maximum while keeping other builds capped", () => {
+    expect(
+      BuildUnitIntentSchema.safeParse({
+        type: "build_unit",
+        unit: "Atom Bomb",
+        tile: 12,
+        amount: 100,
+      }).success,
+    ).toBe(true);
+    expect(
+      BuildUnitIntentSchema.safeParse({
+        type: "build_unit",
+        unit: "Hydrogen Bomb",
+        tile: 12,
+        amount: 101,
+      }).success,
+    ).toBe(false);
+    expect(
+      BuildUnitIntentSchema.safeParse({
+        type: "build_unit",
+        unit: "Bunker",
+        tile: 12,
+        amount: 51,
+      }).success,
+    ).toBe(false);
+  });
+});
+
 // Troops and gold are deliberately NOT integers. Attack troops are
 // `attackRatio * player.troops()` on the client and combat attrition keeps them
 // fractional in the sim, so pinning these to .int() would reject every honest
